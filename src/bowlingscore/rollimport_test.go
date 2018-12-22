@@ -39,18 +39,41 @@ func Test_getCleanedRollsData(t *testing.T) {
 		wantRollData []string
 		wantErr      bool
 	}{
-		// TODO: Add more test cases.
+
 		{name: "extra spaces", args: args{rolls: []string{"4 ", "X "}}, wantRollData: []string{"4", "X"}, wantErr: false},
+		{name: "Invalid char", args: args{rolls: []string{"4 ", "X ", "5", "7", "1", "7", "1", "7", "&", "X"}}, wantRollData: []string{}, wantErr: true},
+		{name: "double chars", args: args{rolls: []string{"4 ", "X ", "5", "71", "1", "7", "1", "7", "&", "XX"}}, wantRollData: []string{}, wantErr: true},
+		{name: "lower case x", args: args{rolls: []string{"4 ", "X ", "5", "1", "7", "1", "7", "x"}}, wantRollData: []string{"4", "X", "5", "1", "7", "1", "7", "X"}, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotRollData, err := getCleanedRollsData(tt.args.rolls)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("getCleanedRollsData() error = %v, wantErr %v", err, tt.wantErr)
+				// wanted an error but didn't get one
+				t.Errorf("getCleanedRollsData() name=%s, error = %v, wantErr %v", tt.name, err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(gotRollData, tt.wantRollData) {
-				t.Errorf("getCleanedRollsData() = %v, want %v", gotRollData, tt.wantRollData)
+			if !reflect.DeepEqual(gotRollData, tt.wantRollData) && !tt.wantErr {
+				t.Errorf("getCleanedRollsData() name=%s, = %v, want %v", tt.name, gotRollData, tt.wantRollData)
+			}
+		})
+	}
+}
+
+func Test_nomalizeRollString(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{name: "leading spaces", input: "  5", want: "5"},
+		{name: "trailing", input: "5  ", want: "5"},
+		{name: "lower case x", input: "  x", want: "X"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := nomalizeRollString(tt.input); got != tt.want {
+				t.Errorf("nomalizeRollString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
