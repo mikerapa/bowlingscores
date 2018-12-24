@@ -23,8 +23,8 @@ func TestGetEmptyFrames(t *testing.T) {
 		}
 
 		// check the frame number
-		if currentFrame.frameNumnber != (i + 1) {
-			t.Errorf("Frame has incorrect frameNumber: Expected %d, Actual %d", i+1, currentFrame.frameNumnber)
+		if currentFrame.frameNumber != (i + 1) {
+			t.Errorf("Frame has incorrect frameNumber: Expected %d, Actual %d", i+1, currentFrame.frameNumber)
 		}
 
 		// the framescore should be 0
@@ -85,3 +85,35 @@ func TestGetEmptyFrames(t *testing.T) {
 // 	}
 
 // }
+
+func TestGetGameStatsFromRolls(t *testing.T) {
+	tests := []struct {
+		name             string
+		rolls            []string
+		wantGameState    string
+		wantScore        int
+		wantCurrentFrame int
+		wantError        bool
+	}{
+		{name: "no rolls", rolls: []string{}, wantGameState: gameNotStarted, wantScore: 0, wantCurrentFrame: 1, wantError: false},
+		{name: "invalid roll", rolls: []string{""}, wantGameState: gameNotStarted, wantScore: 0, wantCurrentFrame: 1, wantError: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// TODO do something with the error state
+			gotGameState, gotScore, gotCurrentFrame, _, err := GetGameStatsFromRolls(tt.rolls)
+			if gotGameState != tt.wantGameState {
+				t.Errorf("GetGameStatsFromRolls() gotGameState = %v, want %v", gotGameState, tt.wantGameState)
+			}
+			if gotScore != tt.wantScore {
+				t.Errorf("GetGameStatsFromRolls() gotScore = %v, want %v", gotScore, tt.wantScore)
+			}
+			if gotCurrentFrame != tt.wantCurrentFrame {
+				t.Errorf("GetGameStatsFromRolls() gotCurrentFrame = %v, want %v", gotCurrentFrame, tt.wantCurrentFrame)
+			}
+			if tt.wantError != (err != nil) {
+				t.Errorf("GetGameStatsFromRolls() error gotError=%v, wantError=%v", err != nil, tt.wantError)
+			}
+		})
+	}
+}
