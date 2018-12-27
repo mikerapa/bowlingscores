@@ -28,6 +28,18 @@ type Frame struct {
 	bonusCount  int
 }
 
+// Game : Game score and state data
+type Game struct {
+	gameState    string
+	score        int
+	currentFrame int
+	frames       [10]Frame
+}
+
+func (g *Game) addRoll(newRoll string) {
+	g.frames[g.currentFrame-1].addRoll(newRoll)
+}
+
 func (f *Frame) addRoll(newRoll string) {
 	f.rolls[f.currentBall-1] = newRoll
 
@@ -41,7 +53,6 @@ func (f *Frame) addRoll(newRoll string) {
 	f.frameScore = f.calculateFrameScore()
 }
 
-// TODO need to add a test for this
 func (f *Frame) calculateFrameScore() (frameScore int) {
 	skipPrevious := false
 	for i := 2; i >= 0; i-- {
@@ -51,7 +62,7 @@ func (f *Frame) calculateFrameScore() (frameScore int) {
 		}
 
 		switch f.rolls[i] {
-		case "x":
+		case "X":
 			frameScore += 10
 		case "/":
 			frameScore += 10
@@ -90,14 +101,19 @@ func getEmptyFrames() (frames [10]Frame) {
 	return
 }
 
+func getEmptyGame() (game Game) {
+	game.frames = getEmptyFrames()
+	game.score = 0
+	game.gameState = gameNotStarted
+	game.currentFrame = 1
+	game.frames[0].currentBall = 1
+	return
+}
+
 // GetGameStatsFromRolls : get the score of a game based on roll data
-func GetGameStatsFromRolls(rolls []string) (gameState string, score int, currentFrame int, frames [10]Frame, gameError error) {
+func GetGameStatsFromRolls(rolls []string) (game Game, gameError error) {
 	// set up the game state
-	gameState = gameNotStarted
-	score = 0
-	currentFrame = 1
-	frames[currentFrame-1].currentBall = 1
-	frames = getEmptyFrames()
+	game = getEmptyGame()
 
 	rollData, err := getCleanedRollsData(rolls)
 
@@ -109,23 +125,49 @@ func GetGameStatsFromRolls(rolls []string) (gameState string, score int, current
 	}
 
 	for _, currentRoll := range rollData {
-		gameState = gameInProgress
+		game.gameState = gameInProgress
 		// add roll to the current frame
-		frames[currentFrame-1].addRoll(currentRoll)
+		game.addRoll(currentRoll)
+		game.updateGameScore()
 
 		// move to the next frame
-		if frames[currentFrame-1].frameState == frameComplete && currentFrame < 10 {
-			// advance to the next frame
-			currentFrame++
-			frames[currentFrame-1].currentBall = 1
-
-		} else if frames[currentFrame-1].frameState == frameComplete && currentFrame == 10 {
-			// end the game
-			gameState = gameCompleted
-		}
+		game.advanceGameState()
 	}
 
 	return
+}
+
+func (g *Game) getCurrentFrame() Frame {
+	return g.frames[g.currentFrame-1]
+}
+
+// TODO need a test for this
+func (g *Game) advanceGameState() {
+	// move to the next frame
+	if g.getCurrentFrame().frameState == frameComplete && g.currentFrame < 10 {
+		// advance to the next frame
+		g.currentFrame++
+		g.frames[g.currentFrame-1].currentBall = 1
+
+	} else if g.getCurrentFrame().frameState == frameComplete && g.currentFrame == 10 {
+		// end the game
+		g.gameState = gameCompleted
+	}
+}
+
+func (g *Game) updateGameScore() {
+	// apply bonuses
+	latestFrameScore := g.frames[g.currentFrame-1].frameScore
+	for i := g.currentFrame - 2; i > 0; i-- {
+		if g.frames[i].bonusCount > 0 {
+			// apply the bonus
+			g.frames[i].frameScore += latestFrameScore
+			g.frames[i].bonusCount--
+		} else {
+			// there are no remaining bonuses, stop calculating
+			break
+		}
+	}
 }
 
 // GetGameFromRolls : Get the frames from a list of rolls
