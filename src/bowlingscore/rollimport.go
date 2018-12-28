@@ -7,12 +7,19 @@ import (
 )
 
 const (
-	validRollString = "_0123456789/X"
+	validRollString = "_0123456789/X-\\"
 )
 
 // remove extra spaces and make alpha chars upper case
 func nomalizeRollString(rollString string) string {
-	return strings.ToUpper(strings.Trim(rollString, " "))
+	cleanedRollString := strings.ToUpper(strings.Trim(rollString, " "))
+	switch cleanedRollString {
+	case "\\":
+		cleanedRollString = "/"
+	case "_", "-":
+		cleanedRollString = "0"
+	}
+	return cleanedRollString
 }
 
 func isValidRollString(rollString string) (valid bool) {

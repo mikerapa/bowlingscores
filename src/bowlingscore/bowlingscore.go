@@ -38,19 +38,53 @@ type Game struct {
 
 func (g *Game) addRoll(newRoll string) {
 	g.frames[g.currentFrame-1].addRoll(newRoll)
+	// Update the game score
+	rollValue := g.frames[g.currentFrame-1].getPointValueFromLastRoll()
+	g.score += rollValue
+
+	// update bonuses, starting with the previous frame
+	for i := g.currentFrame - 2; i >= 0; i-- {
+
+		if g.frames[i].bonusCount > 0 {
+			// apply the bonus
+			g.frames[i].frameScore += rollValue
+			g.score += rollValue
+			g.frames[i].bonusCount--
+		} else {
+			// there are no remaining bonuses, stop calculating
+			break
+		}
+	}
 }
 
 func (f *Frame) addRoll(newRoll string) {
 	f.rolls[f.currentBall-1] = newRoll
-
+	// TODO: this logic doesn't figure out if two numeric scores are equivelent to a spare
 	if (f.frameNumber < 10 && (newRoll == "/" || newRoll == "X" || f.currentBall == 2)) || (f.frameNumber == 10) && (newRoll == "/" || newRoll == "X" || f.currentBall == 3) {
 		f.frameState = frameComplete
-		f.bonusCount = f.calculateFrameBonusCount()
+		f.bonusCount = f.calculateFrameBonusCount() // TODO : maybe we don't need to store this value
 	} else {
 		f.frameState = frameInProgress
-		f.currentBall++
+
 	}
+	f.currentBall++
 	f.frameScore = f.calculateFrameScore()
+}
+
+// TODO: Need tests for this method
+func (f *Frame) getPointValueFromLastRoll() int {
+	lastRollString := f.rolls[f.currentBall-2]
+	switch lastRollString {
+	case "X":
+		return 10
+	case "/":
+		rollValue, _ := strconv.Atoi(f.rolls[f.currentBall-3])
+		return 10 - rollValue
+	case "1", "2", "3", "4", "5", "6", "7", "8", "9":
+		rollValue, _ := strconv.Atoi(lastRollString)
+		return rollValue
+	}
+	return 0
 }
 
 func (f *Frame) calculateFrameScore() (frameScore int) {
@@ -80,7 +114,7 @@ func (f *Frame) calculateFrameBonusCount() (bonusCount int) {
 	if f.frameNumber < 10 {
 		for i := 1; i >= 0; i-- {
 			switch f.rolls[i] {
-			case "x":
+			case "X":
 				return 2
 			case "/":
 				return 1
@@ -128,7 +162,6 @@ func GetGameStatsFromRolls(rolls []string) (game Game, gameError error) {
 		game.gameState = gameInProgress
 		// add roll to the current frame
 		game.addRoll(currentRoll)
-		game.updateGameScore()
 
 		// move to the next frame
 		game.advanceGameState()
@@ -153,32 +186,4 @@ func (g *Game) advanceGameState() {
 		// end the game
 		g.gameState = gameCompleted
 	}
-}
-
-func (g *Game) updateGameScore() {
-	// apply bonuses
-	latestFrameScore := g.frames[g.currentFrame-1].frameScore
-	for i := g.currentFrame - 2; i > 0; i-- {
-		if g.frames[i].bonusCount > 0 {
-			// apply the bonus
-			g.frames[i].frameScore += latestFrameScore
-			g.frames[i].bonusCount--
-		} else {
-			// there are no remaining bonuses, stop calculating
-			break
-		}
-	}
-}
-
-// GetGameFromRolls : Get the frames from a list of rolls
-func GetGameFromRolls(rolls [21]string) [10]Frame {
-	var frames [10]Frame
-	currentFrame := 0
-	for currentRoll := 0; currentRoll < 21; currentRoll++ {
-		if rolls[currentRoll] == "X" || rolls[currentRoll] == "/" {
-			frames[currentFrame].frameState = frameComplete
-			currentFrame++
-		}
-	}
-	return (frames)
 }

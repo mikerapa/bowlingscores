@@ -35,57 +35,6 @@ func TestGetEmptyFrames(t *testing.T) {
 
 }
 
-// func TestGetGameFromRolls(t *testing.T) {
-// 	var sampleRolls [21]string
-// 	sampleRolls[0] = "X"
-// 	frames := GetGameFromRolls(sampleRolls)
-// 	if frames[0].frameState != frameComplete {
-// 		t.Fail()
-// 	}
-
-// }
-
-// func TestGetGameFromRolls(t *testing.T) {
-// 	type GameRollTestData struct {
-// 		rollData                     [21]string
-// 		expectedFramesCompletedCount int
-// 	}
-
-// 	var gameTestData = []GameRollTestData{
-// 		GameRollTestData{
-// 			rollData:                     [21]string{"X", "1"},
-// 			expectedFramesCompletedCount: 1,
-// 		},
-// 		GameRollTestData{
-// 			rollData:                     [21]string{"X", "1", "/"},
-// 			expectedFramesCompletedCount: 2,
-// 		},
-// 		GameRollTestData{
-// 			rollData:                     [21]string{"X", "1", "0"},
-// 			expectedFramesCompletedCount: 2,
-// 		},
-// 	}
-
-// 	for _, currentGameTestData := range gameTestData {
-// 		testName := fmt.Sprintf("Test the number of closed frames:")
-// 		t.Run(testName, func(t *testing.T) {
-// 			frames := GetGameFromRolls(currentGameTestData.rollData)
-// 			completedFrameCount := 0
-// 			for h, currentFrame := range frames {
-// 				if currentFrame.frameState != frameComplete {
-// 					completedFrameCount = h - 1
-// 					break
-// 				}
-// 			}
-// 			if completedFrameCount != currentGameTestData.expectedFramesCompletedCount {
-// 				t.Fail()
-// 			}
-
-// 		})
-// 	}
-
-// }
-
 func TestGetGameStatsFromRolls(t *testing.T) {
 	tests := []struct {
 		name             string
@@ -99,6 +48,8 @@ func TestGetGameStatsFromRolls(t *testing.T) {
 		{name: "invalid roll", rolls: []string{""}, wantGameState: gameNotStarted, wantScore: 0, wantCurrentFrame: 1, wantError: true},
 		{name: "invalid roll2", rolls: []string{"A"}, wantGameState: gameNotStarted, wantScore: 0, wantCurrentFrame: 1, wantError: true},
 		{name: "1 Strike", rolls: []string{"X"}, wantGameState: gameInProgress, wantScore: 10, wantCurrentFrame: 2, wantError: false},
+		{name: "12 Strikes", rolls: []string{"X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X"}, wantGameState: gameCompleted, wantScore: 300, wantCurrentFrame: 10, wantError: false},
+		{name: "163", rolls: []string{"X", "2", "/", "8", "/", "7", "1", "X", "8", "/", "9", "/", "8", "-", "X", "8", "/", "5"}, wantGameState: gameCompleted, wantScore: 163, wantCurrentFrame: 10, wantError: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

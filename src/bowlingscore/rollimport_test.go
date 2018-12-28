@@ -19,6 +19,7 @@ func Test_isValidRollString(t *testing.T) {
 		{"blank", args{rollString: ""}, false},
 		{"X", args{rollString: "X"}, true},
 		{"/ (Spare)", args{rollString: "/"}, true},
+		{"dash", args{rollString: "-"}, true},
 	}
 	for _, tt := range tests {
 		t.Run("value is "+tt.name, func(t *testing.T) {
@@ -44,6 +45,7 @@ func Test_getCleanedRollsData(t *testing.T) {
 		{name: "Invalid char", args: args{rolls: []string{"4 ", "X ", "5", "7", "1", "7", "1", "7", "&", "X"}}, wantRollData: []string{}, wantErr: true},
 		{name: "double chars", args: args{rolls: []string{"4 ", "X ", "5", "71", "1", "7", "1", "7", "&", "XX"}}, wantRollData: []string{}, wantErr: true},
 		{name: "lower case x", args: args{rolls: []string{"4 ", "X ", "5", "1", "7", "1", "7", "x"}}, wantRollData: []string{"4", "X", "5", "1", "7", "1", "7", "X"}, wantErr: false},
+		{name: "Input that needs to be normalized", args: args{rolls: []string{"X", "2", "/", "8", "/", "7", "1", "X", "8", "/", "9", "/", "8", "-", "X", "8", "\\", "5"}}, wantRollData: []string{"X", "2", "/", "8", "/", "7", "1", "X", "8", "/", "9", "/", "8", "0", "X", "8", "/", "5"}, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
