@@ -58,11 +58,19 @@ func (g *Game) addRoll(newRoll string) {
 }
 
 func (f *Frame) addRoll(newRoll string) {
+	// Check to see if this is a spare, marked with a numeric value
+	if newRoll != "X" && newRoll != "/" && newRoll != "0" && f.currentBall > 1 {
+		rollValue, _ := strconv.Atoi(newRoll)
+		if rollValue+f.getPointValueFromLastRoll() == 10 {
+			newRoll = "/"
+		}
+	}
+
 	f.rolls[f.currentBall-1] = newRoll
 	// TODO: this logic doesn't figure out if two numeric scores are equivelent to a spare
 	if (f.frameNumber < 10 && (newRoll == "/" || newRoll == "X" || f.currentBall == 2)) || (f.frameNumber == 10) && (newRoll == "/" || newRoll == "X" || f.currentBall == 3) {
 		f.frameState = frameComplete
-		f.bonusCount = f.calculateFrameBonusCount() // TODO : maybe we don't need to store this value
+		f.bonusCount = f.calculateFrameBonusCount()
 	} else {
 		f.frameState = frameInProgress
 

@@ -50,6 +50,7 @@ func TestGetGameStatsFromRolls(t *testing.T) {
 		{name: "1 Strike", rolls: []string{"X"}, wantGameState: gameInProgress, wantScore: 10, wantCurrentFrame: 2, wantError: false},
 		{name: "12 Strikes", rolls: []string{"X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X"}, wantGameState: gameCompleted, wantScore: 300, wantCurrentFrame: 10, wantError: false},
 		{name: "163", rolls: []string{"X", "2", "/", "8", "/", "7", "1", "X", "8", "/", "9", "/", "8", "-", "X", "8", "/", "5"}, wantGameState: gameCompleted, wantScore: 163, wantCurrentFrame: 10, wantError: false},
+		{name: "163 with unmarked spare", rolls: []string{"X", "2", "8", "8", "/", "7", "1", "X", "8", "/", "9", "/", "8", "-", "X", "8", "/", "5"}, wantGameState: gameCompleted, wantScore: 163, wantCurrentFrame: 10, wantError: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
