@@ -56,14 +56,14 @@ func TestGetGameStatsFromRolls(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			gotGame, err := GetGameStatsFromRolls(tt.rolls)
-			if gotGame.gameState != tt.wantGameState {
-				t.Errorf("GetGameStatsFromRolls() gotGameState = %v, want %v", gotGame.gameState, tt.wantGameState)
+			if gotGame.GameState != tt.wantGameState {
+				t.Errorf("GetGameStatsFromRolls() gotGameState = %v, want %v", gotGame.GameState, tt.wantGameState)
 			}
-			if gotGame.score != tt.wantScore {
-				t.Errorf("GetGameStatsFromRolls() gotScore = %v, want %v", gotGame.score, tt.wantScore)
+			if gotGame.Score != tt.wantScore {
+				t.Errorf("GetGameStatsFromRolls() gotScore = %v, want %v", gotGame.Score, tt.wantScore)
 			}
-			if gotGame.currentFrame != tt.wantCurrentFrame {
-				t.Errorf("GetGameStatsFromRolls() gotCurrentFrame = %v, want %v", gotGame.currentFrame, tt.wantCurrentFrame)
+			if gotGame.CurrentFrame != tt.wantCurrentFrame {
+				t.Errorf("GetGameStatsFromRolls() gotCurrentFrame = %v, want %v", gotGame.CurrentFrame, tt.wantCurrentFrame)
 			}
 			if tt.wantError != (err != nil) {
 				t.Errorf("GetGameStatsFromRolls() error gotError=%v, wantError=%v", err != nil, tt.wantError)
@@ -76,21 +76,21 @@ func Test_getEmptyGame(t *testing.T) {
 	gotGame := getEmptyGame()
 
 	// make sure the frames exist
-	if len(gotGame.frames) != 10 {
+	if len(gotGame.Frames) != 10 {
 		t.Errorf("Test_getEmptyGame: There should be 10 frames")
 	}
 
 	// current game
-	if gotGame.currentFrame != 1 {
-		t.Errorf("Test_getEmptyGame: currentGame not set correctly. Should be 1, got %d", gotGame.currentFrame)
+	if gotGame.CurrentFrame != 1 {
+		t.Errorf("Test_getEmptyGame: currentGame not set correctly. Should be 1, got %d", gotGame.CurrentFrame)
 	}
 	//score
-	if gotGame.score != 0 {
-		t.Errorf("Test_getEmptyGame: Score should be 0. Got %d", gotGame.score)
+	if gotGame.Score != 0 {
+		t.Errorf("Test_getEmptyGame: Score should be 0. Got %d", gotGame.Score)
 	}
 
-	if gotGame.gameState != gameNotStarted {
-		t.Errorf("Test_getEmptyGame: GameState not set to GameNotStarted. Got %v", gotGame.gameState)
+	if gotGame.GameState != gameNotStarted {
+		t.Errorf("Test_getEmptyGame: GameState not set to GameNotStarted. Got %v", gotGame.GameState)
 	}
 }
 
@@ -113,7 +113,7 @@ func TestFrame_calculateFrameScore(t *testing.T) {
 			for _, newRoll := range tt.rolls {
 				newGame.addRoll(newRoll)
 			}
-			if gotFrameScore := newGame.frames[newGame.currentFrame-1].calculateFrameScore(); gotFrameScore != tt.wantFrameScore {
+			if gotFrameScore := newGame.Frames[newGame.CurrentFrame-1].calculateFrameScore(); gotFrameScore != tt.wantFrameScore {
 				t.Errorf("Frame.calculateFrameScore() = %v, want %v", gotFrameScore, tt.wantFrameScore)
 			}
 		})

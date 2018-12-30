@@ -30,26 +30,26 @@ type Frame struct {
 
 // Game : Game score and state data
 type Game struct {
-	gameState    string
-	score        int
-	currentFrame int
-	frames       [10]Frame
+	GameState    string
+	Score        int
+	CurrentFrame int
+	Frames       [10]Frame
 }
 
 func (g *Game) addRoll(newRoll string) {
-	g.frames[g.currentFrame-1].addRoll(newRoll)
+	g.Frames[g.CurrentFrame-1].addRoll(newRoll)
 	// Update the game score
-	rollValue := g.frames[g.currentFrame-1].getPointValueFromLastRoll()
-	g.score += rollValue
+	rollValue := g.Frames[g.CurrentFrame-1].getPointValueFromLastRoll()
+	g.Score += rollValue
 
 	// update bonuses, starting with the previous frame
-	for i := g.currentFrame - 2; i >= 0; i-- {
+	for i := g.CurrentFrame - 2; i >= 0; i-- {
 
-		if g.frames[i].bonusCount > 0 {
+		if g.Frames[i].bonusCount > 0 {
 			// apply the bonus
-			g.frames[i].frameScore += rollValue
-			g.score += rollValue
-			g.frames[i].bonusCount--
+			g.Frames[i].frameScore += rollValue
+			g.Score += rollValue
+			g.Frames[i].bonusCount--
 		} else {
 			// there are no remaining bonuses, stop calculating
 			break
@@ -144,11 +144,11 @@ func getEmptyFrames() (frames [10]Frame) {
 }
 
 func getEmptyGame() (game Game) {
-	game.frames = getEmptyFrames()
-	game.score = 0
-	game.gameState = gameNotStarted
-	game.currentFrame = 1
-	game.frames[0].currentBall = 1
+	game.Frames = getEmptyFrames()
+	game.Score = 0
+	game.GameState = gameNotStarted
+	game.CurrentFrame = 1
+	game.Frames[0].currentBall = 1
 	return
 }
 
@@ -167,7 +167,7 @@ func GetGameStatsFromRolls(rolls []string) (game Game, gameError error) {
 	}
 
 	for _, currentRoll := range rollData {
-		game.gameState = gameInProgress
+		game.GameState = gameInProgress
 		// add roll to the current frame
 		game.addRoll(currentRoll)
 
@@ -179,19 +179,19 @@ func GetGameStatsFromRolls(rolls []string) (game Game, gameError error) {
 }
 
 func (g *Game) getCurrentFrame() Frame {
-	return g.frames[g.currentFrame-1]
+	return g.Frames[g.CurrentFrame-1]
 }
 
 // TODO need a test for this
 func (g *Game) advanceGameState() {
 	// move to the next frame
-	if g.getCurrentFrame().frameState == frameComplete && g.currentFrame < 10 {
+	if g.getCurrentFrame().frameState == frameComplete && g.CurrentFrame < 10 {
 		// advance to the next frame
-		g.currentFrame++
-		g.frames[g.currentFrame-1].currentBall = 1
+		g.CurrentFrame++
+		g.Frames[g.CurrentFrame-1].currentBall = 1
 
-	} else if g.getCurrentFrame().frameState == frameComplete && g.currentFrame == 10 {
+	} else if g.getCurrentFrame().frameState == frameComplete && g.CurrentFrame == 10 {
 		// end the game
-		g.gameState = gameCompleted
+		g.GameState = gameCompleted
 	}
 }
