@@ -67,7 +67,7 @@ func (f *Frame) addRoll(newRoll string) {
 	}
 
 	f.rolls[f.currentBall-1] = newRoll
-	// TODO: this logic doesn't figure out if two numeric scores are equivelent to a spare
+	// Check for the end of a frame
 	if (f.frameNumber < 10 && (newRoll == "/" || newRoll == "X" || f.currentBall == 2)) || (f.frameNumber == 10) && (newRoll == "/" || newRoll == "X" || f.currentBall == 3) {
 		f.frameState = frameComplete
 		f.bonusCount = f.calculateFrameBonusCount()
